@@ -24,7 +24,7 @@
 <p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
 <footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Topic labels are assigned automatically and may overlap. Affiliations carried over from another submission are labeled. Industry filters classify listed affiliations, and categories may overlap. Lean and preprint links are shown where identified. See the linked PDF for the original.</footer></main>
 <script src="papers.js?v=20"></script>
-<script src="portraits.js?v=2"></script>
+<script src="portraits.js?v=3"></script>
 <script>
 const get=id=>document.getElementById(id);
 const [query,topic,sort,lean,related,ai,industry,authorCount,count,results]=['query','topic','sort','lean','related','ai','industry','authorCount','count','results'].map(get);
@@ -108,7 +108,8 @@ function paperBody(p){
     if(photo){
       item.className='author-with-portrait';
       const img=node('img',null,'author-portrait');
-      img.src='https://upload.wikimedia.org/wikipedia/commons/'+photo[0];
+      img.src=photo[4]?photo[0]:'https://upload.wikimedia.org/wikipedia/commons/'+photo[0];
+      if(photo[4]) img.style.objectFit='contain';
       img.alt='Portrait of '+name;
       img.loading='lazy';
       img.referrerPolicy='no-referrer';
@@ -126,10 +127,10 @@ function paperBody(p){
     identity.append(document.createTextNode(' — '+(institutions.join('; ')||'Institution not matched')));
     if(photo){
       const credit=node('small',null,'portrait-credit');
-      const source='https://commons.wikimedia.org/wiki/File:'+photo[0].split('/').at(-1);
+      const source=photo[4]||'https://commons.wikimedia.org/wiki/File:'+photo[0].split('/').at(-1);
       credit.append(externalLink(source,'Photo: '+photo[1]),document.createTextNode(' · '));
       credit.append(photo[3]?externalLink(photo[3],photo[2]):document.createTextNode(photo[2]));
-      credit.append(document.createTextNode(" · displayed as a square crop"));
+      if(!photo[4]) credit.append(document.createTextNode(" · displayed as a square crop"));
       identity.append(credit);
     }
     item.append(identity);

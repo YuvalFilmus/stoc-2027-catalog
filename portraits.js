@@ -1,4 +1,5 @@
 const portraits = {
+  "Aviad Rubinstein": ["https://opc.mfo.de/photoNormal?id=22869", "Petra Lein, Archives of the Mathematisches Forschungsinstitut Oberwolfach", "CC BY-SA 2.0 DE", "https://creativecommons.org/licenses/by-sa/2.0/de/", "https://opc.mfo.de/detail?photo_id=22869"],
   "Adel Javanmard": ["5/50/Adel_Javanmard.png", "Adel Javanmard", "CC BY 4.0", "https://creativecommons.org/licenses/by/4.0"],
   "Amit Sahai": ["9/95/Amit_Sahai.JPG", "Manojmp at English Wikipedia", "CC BY 4.0", "https://creativecommons.org/licenses/by/4.0"],
   "Andrew Childs": ["b/b3/Professor_Andrew_Childs.jpg", "SebastosOctavian", "CC BY-SA 4.0", "https://creativecommons.org/licenses/by-sa/4.0"],
