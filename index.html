@@ -15,13 +15,22 @@
 <label for="sort">Sort by <select id="sort"><option value="id">Submission number</option><option value="short">Pages, fewest first</option><option value="long">Pages, most first</option></select></label>
 <label><input type="checkbox" id="lean"> Lean formalization reported</label>
 <label><input type="checkbox" id="related"> Has related submissions</label>
+<label><input type="checkbox" id="ai"> Has AI statement</label>
+<label for="industry">Industry <select id="industry"><option value="">All submissions</option><option value="any">Any industry affiliation</option><option value="lab">Industry research labs</option><option value="company">Other companies</option><option value="none">No industry affiliation identified</option></select></label>
+<label for="authorCount">Authors <select id="authorCount"><option value="">Any number</option></select></label>
 </div>
 <p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
-<footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Topic labels are assigned automatically and may overlap. Lean and preprint links are shown where identified. See the linked PDF for the original.</footer></main>
-<script src="papers.js?v=13"></script>
+<footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Topic labels are assigned automatically and may overlap. Affiliations carried over from another submission are labeled. Industry filters classify listed affiliations, and categories may overlap. Lean and preprint links are shown where identified. See the linked PDF for the original.</footer></main>
+<script src="papers.js?v=14"></script>
 <script>
 const get=id=>document.getElementById(id);
-const [query,topic,sort,lean,related,count,results]=['query','topic','sort','lean','related','count','results'].map(get);
+const [query,topic,sort,lean,related,ai,industry,authorCount,count,results]=['query','topic','sort','lean','related','ai','industry','authorCount','count','results'].map(get);
+for(const n of [...new Set(papers.map(p=>p.institutions.length))].sort((a,b)=>a-b)){
+  const option=document.createElement('option');
+  option.value=n;
+  option.textContent=n===1?'1 author':n+' authors';
+  authorCount.append(option);
+}
 function node(tag,value,cls){
   const el=document.createElement(tag);
   if(value) el.textContent=value;
@@ -64,7 +73,13 @@ function paperCard(p){
   pdf.setAttribute('aria-label','Open PDF for submission '+p.id);
   const institutions=[...new Set(p.institutions.flatMap(([,names])=>names))];
   if(institutions.length) summary.append(node('p',institutions.join(' · ')));
-  if(p.ai?.length) summary.append(node('span',' · AI disclosure'));
+  if(p.ai?.length){
+    const pages=[...new Set(p.ai.map(([page])=>page))];
+    summary.append(node('span',' · AI statement'));
+    for(const page of pages){
+      summary.append(externalLink(pdfURL(p)+'#page='+page,'p. '+page));
+    }
+  }
   if(p.lean) summary.append(node('span','Lean formalization reported'));
   for(const [id,reason] of p.related||[]){
     const link=node('a','Related #'+id,'pdf-link');
@@ -118,9 +133,15 @@ function paperBody(p){
   }
   return body;
 }
+function matchesIndustry(p){
+  if(!industry.value) return true;
+  if(industry.value==='any') return p.industry.length>0;
+  if(industry.value==='none') return p.industry.length===0;
+  return p.industry.includes(industry.value);
+}
 function render(){
   const terms=query.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  const found=papers.filter(p=>(!topic.value||p.topics.includes(topic.value))&&(!lean.checked||p.lean)&&(!related.checked||p.related?.length)&&terms.every(t=>t.startsWith('#')?String(p.id)===t.slice(1):p.search.includes(t)));
+  const found=papers.filter(p=>(!topic.value||p.topics.includes(topic.value))&&(!lean.checked||p.lean)&&(!related.checked||p.related?.length)&&(!ai.checked||p.ai?.length)&&matchesIndustry(p)&&(!authorCount.value||p.institutions.length===Number(authorCount.value))&&terms.every(t=>t.startsWith('#')?String(p.id)===t.slice(1):p.search.includes(t)));
   found.sort((a,b)=>{
     if(sort.value==='short') return a.pages-b.pages||a.id-b.id;
     if(sort.value==='long') return b.pages-a.pages||a.id-b.id;
@@ -133,7 +154,7 @@ function render(){
   typeset([...results.querySelectorAll('summary')],old);
 }
 query.addEventListener('input',render);
-for(const control of [topic,sort,lean,related]) control.addEventListener('change',render);
+for(const control of [topic,sort,lean,related,ai,industry,authorCount]) control.addEventListener('change',render);
 render();
 window.addEventListener('load',()=>typeset([...results.querySelectorAll('summary')]));
 </script>
