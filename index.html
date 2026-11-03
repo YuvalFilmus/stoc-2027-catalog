@@ -18,7 +18,7 @@
 </div>
 <p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
 <footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Topic labels are assigned automatically and may overlap. Lean and preprint links are shown where identified. See the linked PDF for the original.</footer></main>
-<script src="papers.js?v=12"></script>
+<script src="papers.js?v=13"></script>
 <script>
 const get=id=>document.getElementById(id);
 const [query,topic,sort,lean,related,count,results]=['query','topic','sort','lean','related','count','results'].map(get);
@@ -64,6 +64,7 @@ function paperCard(p){
   pdf.setAttribute('aria-label','Open PDF for submission '+p.id);
   const institutions=[...new Set(p.institutions.flatMap(([,names])=>names))];
   if(institutions.length) summary.append(node('p',institutions.join(' · ')));
+  if(p.ai?.length) summary.append(node('span',' · AI disclosure'));
   if(p.lean) summary.append(node('span','Lean formalization reported'));
   for(const [id,reason] of p.related||[]){
     const link=node('a','Related #'+id,'pdf-link');
@@ -86,7 +87,12 @@ function paperBody(p){
   body.append(node('h2','Authors and institutions'));
   const authors=node('ul');
   for(const [name,institutions] of p.institutions){
-    authors.append(node('li',name+' — '+(institutions.join('; ')||'Institution not matched')));
+    const item=node('li');
+    const homepage=p.homepages?.[name];
+    item.append(homepage?externalLink(homepage,name):document.createTextNode(name));
+    item.append(document.createTextNode(' — '+(institutions.join('; ')||'Institution not matched')));
+    authors.append(item);
+
   }
   body.append(authors);
   body.append(node('p',p.topics.join(' · ')));
@@ -102,6 +108,14 @@ function paperBody(p){
   if(p.lean && !p.leanLinks.length) links.append(node('li','Lean formalization reported in the PDF'));
   for(const url of p.leanLinks) addLink(url,'Lean repository');
   body.append(links);
+  if(p.ai?.length){
+    body.append(node('h2','AI disclosure excerpts'));
+    for(const [page,excerpt] of p.ai){
+      const label=node('p');
+      label.append(externalLink(pdfURL(p)+'#page='+page,'PDF page '+page));
+      body.append(label,node('blockquote',excerpt));
+    }
+  }
   return body;
 }
 function render(){
