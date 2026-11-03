@@ -10,14 +10,13 @@
 </style>
 <header><small>THEORY OF COMPUTING · SUBMISSION INDEX</small><h1>STOC 2027</h1><div>Browse 1,665 submissions by title, author, or submission number.</div></header>
 <main><label for="query">Search submissions</label><input id="query" type="search" placeholder="Title, author, affiliation text, or #number">
-<label><input type="checkbox" id="technion"> Technion-affiliated submissions only</label>
 <p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
 <nav aria-label="Results pages"><button id="prev">Previous</button><button id="next">Next</button></nav>
-<footer>Titles and author lists come from the submission index. Affiliations and abstracts are extracted from PDFs and may contain formatting errors. Use the linked PDF to verify the original.</footer></main>
+<footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Use the linked PDF to verify the original.</footer></main>
 <script src="papers.js"></script>
 <script>
 const get=id=>document.getElementById(id);
-const [query,technion,count,results,prev,next]=['query','technion','count','results','prev','next'].map(get);
+const [query,count,results,prev,next]=['query','count','results','prev','next'].map(get);
 const size=25;
 let page=0;
 function node(tag,value,cls){
@@ -37,10 +36,12 @@ function paperCard(p){
   const link=node('a','Open original PDF');
   link.href='https://stoc2027.sigact-ec.workers.dev/submissions/'+p.id+'.pdf';
   link.target='_blank'; link.rel='noopener';
-  body.append(node('h2',p.technion?'Technion-affiliated authors':'Affiliation information'));
-  if(p.technion) body.append(node('p',p.technion));
-  if(p.affiliations) body.append(node('p',p.affiliations,'excerpt'));
-  if(!p.affiliations && !p.technion) body.append(node('p','See the opening page text or original PDF for affiliation details.'));
+  body.append(node('h2','Authors and institutions'));
+  const authors=node('ul');
+  for(const [name,institutions] of p.institutions){
+    authors.append(node('li',name+' — '+(institutions.join('; ')||'Institution not matched')));
+  }
+  body.append(authors);
   body.append(node('h2','Abstract'),node('p',p.abstract||'No abstract was isolated automatically. See the opening page text or original PDF.','excerpt'));
   const source=node('details');
   source.append(node('summary','Opening page text'),node('div',p.source||'No text extracted.','excerpt'));
@@ -51,7 +52,7 @@ function paperCard(p){
 }
 function render(){
   const terms=query.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  const found=papers.filter(p=>(!technion.checked||p.technion)&&terms.every(t=>t.startsWith('#')?String(p.id)===t.slice(1):p.search.includes(t)));
+  const found=papers.filter(p=>terms.every(t=>t.startsWith('#')?String(p.id)===t.slice(1):p.search.includes(t)));
   const pages=Math.max(1,Math.ceil(found.length/size));
   count.textContent=found.length.toLocaleString()+' submissions · Page '+(page+1)+' of '+pages;
   window.MathJax?.typesetClear?.([results]);
@@ -59,7 +60,7 @@ function render(){
   prev.disabled=page===0; next.disabled=page>=pages-1;
   typeset([...results.querySelectorAll('details > summary:first-child')]);
 }
-for(const control of [query,technion]) control.addEventListener('input',()=>{page=0;render();});
+query.addEventListener('input',()=>{page=0;render();});
 prev.onclick=()=>{page--;render();count.scrollIntoView();};
 next.onclick=()=>{page++;render();count.scrollIntoView();};
 render();
