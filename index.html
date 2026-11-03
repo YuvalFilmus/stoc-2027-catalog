@@ -6,7 +6,7 @@
 <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']]},startup:{typeset:false}};</script>
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f5f5ee;color:#172921;font:16px/1.55 system-ui,sans-serif}header{background:#173d31;color:white;padding:3rem max(5vw,calc((100vw - 980px)/2)) 2.5rem}header small{letter-spacing:.15em;color:#bce2c8}h1{font:clamp(2rem,6vw,4rem)/1.1 Georgia,serif;margin:.45rem 0}main{max-width:1020px;margin:auto;padding:1.5rem}input[type=search]{width:100%;padding:1rem;font:inherit;border:1px solid #7f9b8b;border-radius:.5rem;background:#fff}label{display:block;margin:.65rem 0}section > details{content-visibility:auto;contain-intrinsic-size:auto 100px}details{background:#fff;border:1px solid #d7dfd7;border-radius:.5rem;margin:.55rem 0;padding:1rem}summary{cursor:pointer;font-weight:650}summary span{color:#376451;font-size:.85em}summary p{font-weight:400;color:#40574d;margin:.35rem 0 0}h2{font-size:1rem;margin-bottom:.3rem}.excerpt{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#245e46}button{padding:.55rem .85rem;margin:.5rem .5rem .5rem 0;font:inherit;cursor:pointer}button:disabled{cursor:default}.body{max-width:78ch}.controls{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem}select{font:inherit;padding:.35rem}summary .pages{font-weight:400;white-space:nowrap}footer{color:#40574d}
+*{box-sizing:border-box}body{margin:0;background:#f5f5ee;color:#172921;font:16px/1.55 system-ui,sans-serif}header{background:#173d31;color:white;padding:3rem max(5vw,calc((100vw - 980px)/2)) 2.5rem}header small{letter-spacing:.15em;color:#bce2c8}h1{font:clamp(2rem,6vw,4rem)/1.1 Georgia,serif;margin:.45rem 0}main{max-width:1020px;margin:auto;padding:1.5rem}input[type=search]{width:100%;padding:1rem;font:inherit;border:1px solid #7f9b8b;border-radius:.5rem;background:#fff}label{display:block;margin:.65rem 0}section > details{content-visibility:auto;contain-intrinsic-size:auto 100px}details{background:#fff;border:1px solid #d7dfd7;border-radius:.5rem;margin:.55rem 0;padding:1rem}summary{cursor:pointer;font-weight:650}summary span{color:#376451;font-size:.85em}summary p{font-weight:400;color:#40574d;margin:.35rem 0 0}h2{font-size:1rem;margin-bottom:.3rem}.excerpt{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#245e46}button{padding:.55rem .85rem;margin:.5rem .5rem .5rem 0;font:inherit;cursor:pointer}button:disabled{cursor:default}.body{max-width:78ch}.controls{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem}select{font:inherit;padding:.35rem}summary .pdf-link{display:inline-block;margin-left:.65rem;font-size:.85em;font-weight:500}summary .pages{font-weight:400;white-space:nowrap}footer{color:#40574d}
 </style>
 <header><small>THEORY OF COMPUTING · SUBMISSION INDEX</small><h1>STOC 2027</h1><div>Browse 1,665 submissions by title, author, or submission number.</div></header>
 <main><label for="query">Search submissions</label><input id="query" type="search" placeholder="Title, author, affiliation text, or #number">
@@ -49,10 +49,16 @@ function externalLink(url,label){
   link.rel='noopener';
   return link;
 }
+function pdfURL(p){
+  return 'https://stoc2027.sigact-ec.workers.dev/submissions/'+p.id+'.pdf';
+}
 function paperCard(p){
   const card=node('details');
   const summary=node('summary');
-  summary.append(node('span','#'+p.id+' '),document.createTextNode(p.title+' '),node('span','· '+p.pages+(p.pages===1?' page':' pages'),'pages'),node('p',p.authors));
+  const pdf=externalLink(pdfURL(p),'Open PDF');
+  summary.append(node('span','#'+p.id+' '),document.createTextNode(p.title+' '),node('span','· '+p.pages+(p.pages===1?' page':' pages'),'pages'),pdf,node('p',p.authors));
+  pdf.className='pdf-link';
+  pdf.setAttribute('aria-label','Open PDF for submission '+p.id);
   const institutions=[...new Set(p.institutions.flatMap(([,names])=>names))];
   if(institutions.length) summary.append(node('p',institutions.join(' · ')));
   if(p.lean) summary.append(node('span','Lean formalization reported'));
@@ -81,7 +87,7 @@ function paperBody(p){
     item.append(externalLink(url,label));
     links.append(item);
   }
-  addLink('https://stoc2027.sigact-ec.workers.dev/submissions/'+p.id+'.pdf','Open original PDF');
+  addLink(pdfURL(p),'Open original PDF');
   for(const url of p.versions) addLink(url,url.includes('arxiv.org')?'arXiv version':'ECCC version');
   if(p.lean && !p.leanLinks.length) links.append(node('li','Lean formalization reported in the PDF'));
   for(const url of p.leanLinks) addLink(url,'Lean repository');
