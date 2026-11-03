@@ -6,22 +6,24 @@
 <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']]},startup:{typeset:false}};</script>
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f5f5ee;color:#172921;font:16px/1.55 system-ui,sans-serif}header{background:#173d31;color:white;padding:3rem max(5vw,calc((100vw - 980px)/2)) 2.5rem}header small{letter-spacing:.15em;color:#bce2c8}h1{font:clamp(2rem,6vw,4rem)/1.1 Georgia,serif;margin:.45rem 0}main{max-width:1020px;margin:auto;padding:1.5rem}input[type=search]{width:100%;padding:1rem;font:inherit;border:1px solid #7f9b8b;border-radius:.5rem;background:#fff}label{display:block;margin:.65rem 0}section > details{content-visibility:auto;contain-intrinsic-size:auto 100px}details{background:#fff;border:1px solid #d7dfd7;border-radius:.5rem;margin:.55rem 0;padding:1rem}summary{cursor:pointer;font-weight:650}summary span{color:#376451;font-size:.85em}summary p{font-weight:400;color:#40574d;margin:.35rem 0 0}h2{font-size:1rem;margin-bottom:.3rem}.excerpt{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#245e46}button{padding:.55rem .85rem;margin:.5rem .5rem .5rem 0;font:inherit;cursor:pointer}button:disabled{cursor:default}.body{max-width:78ch}.controls{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem}select,#authorCount{font:inherit;padding:.35rem}#authorCount::placeholder{color:#737973}summary .pdf-link{display:inline-block;margin-left:.65rem;font-size:.85em;font-weight:500}summary .pages{font-weight:400;white-space:nowrap}.ai-links{margin-inline-start:.65rem;color:#376451;font:inherit;font-weight:500}.ai-links a{font:inherit}.author-with-portrait{display:grid;grid-template-columns:84px minmax(0,1fr);align-items:center;gap:.8rem;margin-block:.65rem}.author-portrait{width:84px;height:84px;object-fit:cover;object-position:center 30%;border-radius:.45rem}.portrait-credit{display:block;font-size:.78em;color:#40574d;margin-bottom:.35rem}footer{color:#40574d}
+*{box-sizing:border-box}body{margin:0;background:#f5f5ee;color:#172921;font:16px/1.55 system-ui,sans-serif}header{background:#173d31;color:white;padding:3rem max(5vw,calc((100vw - 980px)/2)) 2.5rem}header small{letter-spacing:.15em;color:#bce2c8}h1{font:clamp(2rem,6vw,4rem)/1.1 Georgia,serif;margin:.45rem 0}main{max-width:1020px;margin:auto;padding:1.5rem}input[type=search]{width:100%;padding:1rem;font:inherit;border:1px solid #7f9b8b;border-radius:.5rem;background:#fff}label{display:block;margin:.65rem 0}section > details{content-visibility:auto;contain-intrinsic-size:auto 100px}details{background:#fff;border:1px solid #d7dfd7;border-radius:.5rem;margin:.55rem 0;padding:1rem}summary{cursor:pointer;font-weight:650}summary span{color:#376451;font-size:.85em}summary p{font-weight:400;color:#40574d;margin:.35rem 0 0}h2{font-size:1rem;margin-bottom:.3rem}.excerpt{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#245e46}button{padding:.55rem .85rem;margin:.5rem .5rem .5rem 0;font:inherit;cursor:pointer}button:disabled{cursor:default}.body{max-width:78ch}.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:.65rem;margin-top:.8rem}.controls label{margin:0;font-size:.85rem;font-weight:650}.controls select,.controls input{display:block;width:100%;margin-top:.25rem;background:white;border:1px solid #9eb1a4;border-radius:.35rem}.flags{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.8rem}.flags label{display:inline-flex;align-items:center;gap:.35rem;margin:0;padding:.35rem .6rem;border:1px solid #d7dfd7;border-radius:.4rem;background:white;font-size:.88rem}.author-orcid{font-size:.8em;margin-inline:.4rem}select,#authorCount{font:inherit;padding:.35rem}#authorCount::placeholder{color:#737973}summary .pdf-link{display:inline-block;margin-left:.65rem;font-size:.85em;font-weight:500}summary .pages{font-weight:400;white-space:nowrap}.ai-links{margin-inline-start:.65rem;color:#376451;font:inherit;font-weight:500}.ai-links a{font:inherit}.author-with-portrait{display:grid;grid-template-columns:84px minmax(0,1fr);align-items:center;gap:.8rem;margin-block:.65rem}.author-portrait{width:84px;height:84px;object-fit:cover;object-position:center 30%;border-radius:.45rem}.portrait-credit{display:block;font-size:.78em;color:#40574d;margin-bottom:.35rem}footer{color:#40574d}
 </style>
 <header><small>THEORY OF COMPUTING · SUBMISSION INDEX</small><h1>STOC 2027</h1><div>Browse 1,665 submissions by title, author, or submission number.</div></header>
 <main><label for="query">Search submissions</label><input id="query" type="search" placeholder="Title, author, affiliation text, or #number">
 <div class="controls">
 <label for="topic">Topic <select id="topic"><option value="">All topics</option></select></label>
 <label for="sort">Sort by <select id="sort"><option value="id">Submission number</option><option value="short">Pages, fewest first</option><option value="long">Pages, most first</option></select></label>
-<label><input type="checkbox" id="lean"> Lean formalization reported</label>
-<label><input type="checkbox" id="related"> Has related submissions</label>
-<label><input type="checkbox" id="ai"> Has AI statement</label>
 <label for="industry">Industry <select id="industry"><option value="">All submissions</option><option value="any">Any industry affiliation</option><option value="lab">Industry research labs</option><option value="company">Other companies</option><option value="none">No industry affiliation identified</option></select></label>
 <label for="authorCount">Authors <input id="authorCount" type="text" placeholder="=1" size="5" aria-label="Author count comparison" title="Examples: =1, &gt;1, ≤2" autocomplete="off" spellcheck="false"></label>
 </div>
+<div class="flags" role="group" aria-label="Submission features">
+<label><input type="checkbox" id="lean"> Lean formalization reported</label>
+<label><input type="checkbox" id="related"> Has related submissions</label>
+<label><input type="checkbox" id="ai"> Has AI statement</label>
+</div>
 <p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
 <footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Topic labels are assigned automatically and may overlap. Affiliations carried over from another submission are labeled. Industry filters classify listed affiliations, and categories may overlap. Lean and preprint links are shown where identified. See the linked PDF for the original.</footer></main>
-<script src="papers.js?v=18"></script>
+<script src="papers.js?v=19"></script>
 <script src="portraits.js"></script>
 <script>
 const get=id=>document.getElementById(id);
@@ -115,6 +117,12 @@ function paperBody(p){
     }
     const homepage=p.homepages?.[name];
     identity.append(homepage?externalLink(homepage,name):document.createTextNode(name));
+    const orcid=p.orcids?.[name];
+    if(orcid){
+      const link=externalLink('https://orcid.org/'+orcid,'ORCID '+orcid);
+      link.className='author-orcid';
+      identity.append(link);
+    }
     identity.append(document.createTextNode(' — '+(institutions.join('; ')||'Institution not matched')));
     if(photo){
       const credit=node('small',null,'portrait-credit');
