@@ -17,16 +17,16 @@
 <label for="authorCount">Authors <input id="authorCount" type="text" placeholder="=1" size="5" aria-label="Author count comparison" title="Examples: =1, &gt;1, ≤2" autocomplete="off" spellcheck="false"></label>
 </div>
 <div class="flags" role="group" aria-label="Submission features">
-<label><input type="checkbox" id="lean"> Lean formalization reported</label>
+<label><input type="checkbox" id="formalization"> Has formalization</label>
 <label><input type="checkbox" id="related"> Has related submissions</label>
 <label><input type="checkbox" id="ai"> Has AI statement</label>
 </div>
 <p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
-<footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Topic labels are assigned automatically and may overlap. Affiliations carried over from another submission are labeled. Industry filters classify listed affiliations, and categories may overlap. Lean and preprint links are shown where identified. See the linked PDF for the original.</footer></main>
-<script src="papers.js?v=28"></script>
+<footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Topic labels are assigned automatically and may overlap. Affiliations carried over from another submission are labeled. Industry filters classify listed affiliations, and categories may overlap. Formalization artifacts and preprint links are shown where identified. See the linked PDF for the original.</footer></main>
+<script src="papers.js?v=29"></script>
 <script>
 const get=id=>document.getElementById(id);
-const [query,topic,sort,lean,related,ai,industry,authorCount,count,results]=['query','topic','sort','lean','related','ai','industry','authorCount','count','results'].map(get);
+const [query,topic,sort,formalization,related,ai,industry,authorCount,count,results]=['query','topic','sort','formalization','related','ai','industry','authorCount','count','results'].map(get);
 function node(tag,value,cls){
   const el=document.createElement(tag);
   if(value) el.textContent=value;
@@ -57,6 +57,14 @@ function externalLink(url,label){
   link.rel='noopener';
   return link;
 }
+function artifactHost(url){
+  const host=new URL(url).hostname;
+  if(host==='github.com') return 'GitHub';
+  if(host==='zenodo.org'||(host==='doi.org'&&url.includes('/zenodo.'))) return 'Zenodo';
+  if(host.includes('laxarchive')) return 'Lax Archive';
+  if(host.includes('hexagon')) return 'Hexagon';
+  return 'Companion site';
+}
 function pdfURL(p){
   return 'https://stoc2027.sigact-ec.workers.dev/submissions/'+p.id+'.pdf';
 }
@@ -79,7 +87,7 @@ function paperCard(p){
     }
     summary.append(disclosure);
   }
-  if(p.lean) summary.append(node('span','Lean formalization reported'));
+  if(p.formalizations?.length) summary.append(node('span',' · Formalization: '+p.formalizations.map(entry=>entry.tool).join(', ')));
   for(const [id,reason] of p.related||[]){
     const link=node('a','Related #'+id,'pdf-link');
     link.href='?paper='+id;
@@ -127,9 +135,20 @@ function paperBody(p){
   }
   addLink(pdfURL(p),'Open original PDF');
   for(const url of p.versions) addLink(url,url.includes('arxiv.org')?'arXiv version':'ECCC version');
-  if(p.lean && !p.leanLinks.length) links.append(node('li','Lean formalization reported in the PDF'));
-  for(const url of p.leanLinks) addLink(url,'Lean repository');
+  for(const url of p.artifacts||[]) addLink(url,artifactHost(url)+' record');
   body.append(links);
+  for(const [heading,entries] of [['Formalizations',p.formalizations],['Solver-based verification',p.verification]]){
+    if(!entries?.length) continue;
+    body.append(node('h2',heading));
+    const list=node('ul');
+    for(const entry of entries){
+      const item=node('li',entry.tool+(entry.note?' — '+entry.note:''));
+      if(entry.page) item.append(document.createTextNode(' · '),externalLink(pdfURL(p)+'#page='+entry.page,'PDF page '+entry.page));
+      for(const url of entry.links) item.append(document.createTextNode(' · '),externalLink(url,artifactHost(url)+' artifact'));
+      list.append(item);
+    }
+    body.append(list);
+  }
   if(p.ai?.length){
     body.append(node('h2','AI disclosure excerpts'));
     for(const [page,excerpt] of p.ai){
@@ -165,7 +184,7 @@ function render(){
   const matchesAuthorCount=authorCountPredicate(authorCount.value);
   authorCount.setAttribute('aria-invalid',String(!matchesAuthorCount));
   const terms=query.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  const found=papers.filter(p=>(!topic.value||p.topics.includes(topic.value))&&(!lean.checked||p.lean)&&(!related.checked||p.related?.length)&&(!ai.checked||p.ai?.length)&&matchesIndustry(p)&&matchesAuthorCount?.(p.institutions.length)&&terms.every(t=>t.startsWith('#')?String(p.id)===t.slice(1):p.search.includes(t)));
+  const found=papers.filter(p=>(!topic.value||p.topics.includes(topic.value))&&(!formalization.checked||p.formalizations?.length)&&(!related.checked||p.related?.length)&&(!ai.checked||p.ai?.length)&&matchesIndustry(p)&&matchesAuthorCount?.(p.institutions.length)&&terms.every(t=>t.startsWith('#')?String(p.id)===t.slice(1):p.search.includes(t)));
   found.sort((a,b)=>{
     if(sort.value==='short') return a.pages-b.pages||a.id-b.id;
     if(sort.value==='long') return b.pages-a.pages||a.id-b.id;
@@ -179,7 +198,7 @@ function render(){
 }
 query.addEventListener('input',render);
 authorCount.addEventListener('input',render);
-for(const control of [topic,sort,lean,related,ai,industry]) control.addEventListener('change',render);
+for(const control of [topic,sort,formalization,related,ai,industry]) control.addEventListener('change',render);
 render();
 window.addEventListener('load',()=>typeset([...results.querySelectorAll('summary')]));
 </script>
