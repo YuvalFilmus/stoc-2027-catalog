@@ -6,7 +6,7 @@
 <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']]},startup:{typeset:false}};</script>
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f5f5ee;color:#172921;font:16px/1.55 system-ui,sans-serif}header{background:#173d31;color:white;padding:3rem max(5vw,calc((100vw - 980px)/2)) 2.5rem}header small{letter-spacing:.15em;color:#bce2c8}h1{font:clamp(2rem,6vw,4rem)/1.1 Georgia,serif;margin:.45rem 0}main{max-width:1020px;margin:auto;padding:1.5rem}input[type=search]{width:100%;padding:1rem;font:inherit;border:1px solid #7f9b8b;border-radius:.5rem;background:#fff}label{display:block;margin:.65rem 0}section > details{content-visibility:auto;contain-intrinsic-size:auto 100px}details{background:#fff;border:1px solid #d7dfd7;border-radius:.5rem;margin:.55rem 0;padding:1rem}summary{cursor:pointer;font-weight:650}summary span{color:#376451;font-size:.85em}summary p{font-weight:400;color:#40574d;margin:.35rem 0 0}h2{font-size:1rem;margin-bottom:.3rem}.excerpt{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#245e46}button{padding:.55rem .85rem;margin:.5rem .5rem .5rem 0;font:inherit;cursor:pointer}button:disabled{cursor:default}.body{max-width:78ch}.controls{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem}select{font:inherit;padding:.35rem}summary .pdf-link{display:inline-block;margin-left:.65rem;font-size:.85em;font-weight:500}summary .pages{font-weight:400;white-space:nowrap}.ai-links{margin-inline-start:.65rem;color:#376451;font:inherit;font-weight:500}.ai-links a{font:inherit}.author-portrait{width:54px;height:54px;object-fit:contain;vertical-align:middle;margin-inline-end:.6rem}.portrait-credit{display:block;font-size:.78em;color:#40574d;margin-bottom:.35rem}footer{color:#40574d}
+*{box-sizing:border-box}body{margin:0;background:#f5f5ee;color:#172921;font:16px/1.55 system-ui,sans-serif}header{background:#173d31;color:white;padding:3rem max(5vw,calc((100vw - 980px)/2)) 2.5rem}header small{letter-spacing:.15em;color:#bce2c8}h1{font:clamp(2rem,6vw,4rem)/1.1 Georgia,serif;margin:.45rem 0}main{max-width:1020px;margin:auto;padding:1.5rem}input[type=search]{width:100%;padding:1rem;font:inherit;border:1px solid #7f9b8b;border-radius:.5rem;background:#fff}label{display:block;margin:.65rem 0}section > details{content-visibility:auto;contain-intrinsic-size:auto 100px}details{background:#fff;border:1px solid #d7dfd7;border-radius:.5rem;margin:.55rem 0;padding:1rem}summary{cursor:pointer;font-weight:650}summary span{color:#376451;font-size:.85em}summary p{font-weight:400;color:#40574d;margin:.35rem 0 0}h2{font-size:1rem;margin-bottom:.3rem}.excerpt{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#245e46}button{padding:.55rem .85rem;margin:.5rem .5rem .5rem 0;font:inherit;cursor:pointer}button:disabled{cursor:default}.body{max-width:78ch}.controls{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem}select{font:inherit;padding:.35rem}summary .pdf-link{display:inline-block;margin-left:.65rem;font-size:.85em;font-weight:500}summary .pages{font-weight:400;white-space:nowrap}.ai-links{margin-inline-start:.65rem;color:#376451;font:inherit;font-weight:500}.ai-links a{font:inherit}.author-with-portrait{display:grid;grid-template-columns:84px minmax(0,1fr);align-items:center;gap:.8rem;margin-block:.65rem}.author-portrait{width:84px;height:84px;object-fit:cover;object-position:center 30%;border-radius:.45rem}.portrait-credit{display:block;font-size:.78em;color:#40574d;margin-bottom:.35rem}footer{color:#40574d}
 </style>
 <header><small>THEORY OF COMPUTING · SUBMISSION INDEX</small><h1>STOC 2027</h1><div>Browse 1,665 submissions by title, author, or submission number.</div></header>
 <main><label for="query">Search submissions</label><input id="query" type="search" placeholder="Title, author, affiliation text, or #number">
@@ -108,25 +108,28 @@ function paperBody(p){
   for(const [name,institutions] of p.institutions){
     const item=node('li');
     const photo=portraits[name];
+    const identity=node('div');
     if(photo){
+      item.className='author-with-portrait';
       const img=node('img',null,'author-portrait');
       img.src='https://upload.wikimedia.org/wikipedia/commons/'+photo[0];
       img.alt='Portrait of '+name;
       img.loading='lazy';
       img.referrerPolicy='no-referrer';
-      img.addEventListener('error',()=>img.remove(),{once:true});
+      img.addEventListener('error',()=>{img.remove();item.classList.remove('author-with-portrait');},{once:true});
       item.append(img);
     }
     const homepage=p.homepages?.[name];
-    item.append(homepage?externalLink(homepage,name):document.createTextNode(name));
-    item.append(document.createTextNode(' — '+(institutions.join('; ')||'Institution not matched')));
+    identity.append(homepage?externalLink(homepage,name):document.createTextNode(name));
+    identity.append(document.createTextNode(' — '+(institutions.join('; ')||'Institution not matched')));
     if(photo){
       const credit=node('small',null,'portrait-credit');
       const source='https://commons.wikimedia.org/wiki/File:'+photo[0].split('/').at(-1);
       credit.append(externalLink(source,'Photo: '+photo[1]),document.createTextNode(' · '));
       credit.append(photo[3]?externalLink(photo[3],photo[2]):document.createTextNode(photo[2]));
-      item.append(credit);
+      identity.append(credit);
     }
+    item.append(identity);
     authors.append(item);
 
   }
