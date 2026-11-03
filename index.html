@@ -6,17 +6,21 @@
 <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']]},startup:{typeset:false}};</script>
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f5f5ee;color:#172921;font:16px/1.55 system-ui,sans-serif}header{background:#173d31;color:white;padding:3rem max(5vw,calc((100vw - 980px)/2)) 2.5rem}header small{letter-spacing:.15em;color:#bce2c8}h1{font:clamp(2rem,6vw,4rem)/1.1 Georgia,serif;margin:.45rem 0}main{max-width:1020px;margin:auto;padding:1.5rem}input[type=search]{width:100%;padding:1rem;font:inherit;border:1px solid #7f9b8b;border-radius:.5rem;background:#fff}label{display:block;margin:.65rem 0}details{background:#fff;border:1px solid #d7dfd7;border-radius:.5rem;margin:.55rem 0;padding:1rem}summary{cursor:pointer;font-weight:650}summary span{color:#376451;font-size:.85em}summary p{font-weight:400;color:#40574d;margin:.35rem 0 0}h2{font-size:1rem;margin-bottom:.3rem}.excerpt{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#245e46}button{padding:.55rem .85rem;margin:.5rem .5rem .5rem 0;font:inherit;cursor:pointer}button:disabled{cursor:default}.body{max-width:78ch}footer{color:#40574d}
+*{box-sizing:border-box}body{margin:0;background:#f5f5ee;color:#172921;font:16px/1.55 system-ui,sans-serif}header{background:#173d31;color:white;padding:3rem max(5vw,calc((100vw - 980px)/2)) 2.5rem}header small{letter-spacing:.15em;color:#bce2c8}h1{font:clamp(2rem,6vw,4rem)/1.1 Georgia,serif;margin:.45rem 0}main{max-width:1020px;margin:auto;padding:1.5rem}input[type=search]{width:100%;padding:1rem;font:inherit;border:1px solid #7f9b8b;border-radius:.5rem;background:#fff}label{display:block;margin:.65rem 0}details{background:#fff;border:1px solid #d7dfd7;border-radius:.5rem;margin:.55rem 0;padding:1rem}summary{cursor:pointer;font-weight:650}summary span{color:#376451;font-size:.85em}summary p{font-weight:400;color:#40574d;margin:.35rem 0 0}h2{font-size:1rem;margin-bottom:.3rem}.excerpt{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#245e46}button{padding:.55rem .85rem;margin:.5rem .5rem .5rem 0;font:inherit;cursor:pointer}button:disabled{cursor:default}.body{max-width:78ch}.controls{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem}select{font:inherit;padding:.35rem}summary .pages{font-weight:400;white-space:nowrap}footer{color:#40574d}
 </style>
 <header><small>THEORY OF COMPUTING · SUBMISSION INDEX</small><h1>STOC 2027</h1><div>Browse 1,665 submissions by title, author, or submission number.</div></header>
 <main><label for="query">Search submissions</label><input id="query" type="search" placeholder="Title, author, affiliation text, or #number">
+<div class="controls">
+<label for="topic">Topic <select id="topic"><option value="">All topics</option></select></label>
+<label for="sort">Sort by <select id="sort"><option value="id">Submission number</option><option value="short">Pages, fewest first</option><option value="long">Pages, most first</option></select></label>
+</div>
 <p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
 <nav aria-label="Results pages"><button id="prev">Previous</button><button id="next">Next</button></nav>
-<footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Use the linked PDF to verify the original.</footer></main>
-<script src="papers.js"></script>
+<footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Topic labels are assigned automatically and may overlap. Lean and preprint links are shown where identified. See the linked PDF for the original.</footer></main>
+<script src="papers.js?v=3"></script>
 <script>
 const get=id=>document.getElementById(id);
-const [query,count,results,prev,next]=['query','count','results','prev','next'].map(get);
+const [query,topic,sort,count,results,prev,next]=['query','topic','sort','count','results','prev','next'].map(get);
 const size=25;
 let page=0;
 function node(tag,value,cls){
@@ -25,42 +29,77 @@ function node(tag,value,cls){
   if(cls) el.className=cls;
   return el;
 }
-function typeset(elements){
-  if(window.MathJax?.typesetPromise) MathJax.typesetPromise(elements).catch(console.error);
+for(const name of [...new Set(papers.flatMap(p=>p.topics))].sort()){
+  const option=node('option',name);
+  option.value=name;
+  topic.append(option);
+}
+let mathQueue=Promise.resolve();
+function typeset(elements, old=[]){
+  const math=window.MathJax;
+  if(!math?.typesetPromise) return;
+  mathQueue=mathQueue.then(()=>{
+    if(old.length) math.typesetClear?.(old);
+    const connected=elements.filter(el=>el.isConnected);
+    if(connected.length) return math.typesetPromise(connected);
+  }).catch(console.error);
+}
+function externalLink(url,label){
+  const link=node('a',label);
+  link.href=url;
+  link.target='_blank';
+  link.rel='noopener';
+  return link;
 }
 function paperCard(p){
   const card=node('details');
   const summary=node('summary');
-  summary.append(node('span','#'+p.id+' '),document.createTextNode(p.title),node('p',p.authors));
+  summary.append(node('span','#'+p.id+' '),document.createTextNode(p.title+' '),node('span','· '+p.pages+(p.pages===1?' page':' pages'),'pages'),node('p',p.authors));
   const body=node('div',null,'body');
-  const link=node('a','Open original PDF');
-  link.href='https://stoc2027.sigact-ec.workers.dev/submissions/'+p.id+'.pdf';
-  link.target='_blank'; link.rel='noopener';
   body.append(node('h2','Authors and institutions'));
   const authors=node('ul');
   for(const [name,institutions] of p.institutions){
     authors.append(node('li',name+' — '+(institutions.join('; ')||'Institution not matched')));
   }
   body.append(authors);
-  body.append(node('h2','Abstract'),node('p',p.abstract||'No abstract was isolated automatically. See the opening page text or original PDF.','excerpt'));
-  const source=node('details');
-  source.append(node('summary','Opening page text'),node('div',p.source||'No text extracted.','excerpt'));
-  body.append(source,link);
+  body.append(node('p',p.topics.join(' · ')));
+  body.append(node('h2','Abstract'),node('p',p.abstract||'Abstract unavailable in the extracted text.','excerpt'));
+  const links=node('ul');
+  function addLink(url,label){
+    const item=node('li');
+    item.append(externalLink(url,label));
+    links.append(item);
+  }
+  addLink('https://stoc2027.sigact-ec.workers.dev/submissions/'+p.id+'.pdf','Open original PDF');
+  for(const url of p.versions) addLink(url,url.includes('arxiv.org')?'arXiv version':'ECCC version');
+  if(p.lean && !p.leanLinks.length) links.append(node('li','Lean formalization reported in the PDF'));
+  for(const url of p.leanLinks) addLink(url,'Lean formalization');
+  body.append(links);
   card.append(summary,body);
   card.addEventListener('toggle',()=>{if(card.open) typeset([body]);});
   return card;
 }
 function render(){
   const terms=query.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  const found=papers.filter(p=>terms.every(t=>t.startsWith('#')?String(p.id)===t.slice(1):p.search.includes(t)));
+  const found=papers.filter(p=>(!topic.value||p.topics.includes(topic.value))&&terms.every(t=>t.startsWith('#')?String(p.id)===t.slice(1):p.search.includes(t)));
+  found.sort((a,b)=>{
+    if(sort.value==='short') return a.pages-b.pages||a.id-b.id;
+    if(sort.value==='long') return b.pages-a.pages||a.id-b.id;
+    return a.id-b.id;
+  });
   const pages=Math.max(1,Math.ceil(found.length/size));
   count.textContent=found.length.toLocaleString()+' submissions · Page '+(page+1)+' of '+pages;
-  window.MathJax?.typesetClear?.([results]);
-  results.replaceChildren(...found.slice(page*size,(page+1)*size).map(paperCard));
+  const old=[...results.children];
+  const cards=found.slice(page*size,(page+1)*size).map(paperCard);
+  results.replaceChildren(...(cards.length?cards:[node('p','No submissions match these filters.')]));
+
   prev.disabled=page===0; next.disabled=page>=pages-1;
-  typeset([...results.querySelectorAll('details > summary:first-child')]);
+  typeset([...results.querySelectorAll('summary')],old);
 }
-query.addEventListener('input',()=>{page=0;render();});
+query.addEventListener('input',reset);
+topic.addEventListener('change',reset);
+sort.addEventListener('change',reset);
+function reset(){page=0;render();}
 prev.onclick=()=>{page--;render();count.scrollIntoView();};
 next.onclick=()=>{page++;render();count.scrollIntoView();};
 render();
