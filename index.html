@@ -23,7 +23,7 @@
 </div>
 <p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
 <footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Topic labels are assigned automatically and may overlap. Affiliations carried over from another submission are labeled. Industry filters classify listed affiliations, and categories may overlap. Formalization artifacts and preprint links are shown where identified. See the linked PDF for the original.</footer></main>
-<script src="papers.js?v=29"></script>
+<script src="papers.js?v=30"></script>
 <script>
 const get=id=>document.getElementById(id);
 const [query,topic,sort,formalization,related,ai,industry,authorCount,count,results]=['query','topic','sort','formalization','related','ai','industry','authorCount','count','results'].map(get);
@@ -56,6 +56,14 @@ function externalLink(url,label){
   link.target='_blank';
   link.rel='noopener';
   return link;
+}
+function versionLabel(url){
+  const host=new URL(url).hostname;
+  if(host==='arxiv.org') return 'arXiv version';
+  if(host==='eprint.iacr.org') return 'IACR ePrint version';
+  if(host.includes('hexagon')) return 'Hexagon version';
+  if(host.startsWith('eccc.')) return 'ECCC version';
+  return 'Preprint';
 }
 function artifactHost(url){
   const host=new URL(url).hostname;
@@ -134,7 +142,7 @@ function paperBody(p){
     links.append(item);
   }
   addLink(pdfURL(p),'Open original PDF');
-  for(const url of p.versions) addLink(url,url.includes('arxiv.org')?'arXiv version':'ECCC version');
+  for(const url of p.versions) addLink(url,versionLabel(url));
   for(const url of p.artifacts||[]) addLink(url,artifactHost(url)+' record');
   body.append(links);
   for(const [heading,entries] of [['Formalizations',p.formalizations],['Solver-based verification',p.verification]]){
