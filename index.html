@@ -14,13 +14,14 @@
 <label for="topic">Topic <select id="topic"><option value="">All topics</option></select></label>
 <label for="sort">Sort by <select id="sort"><option value="id">Submission number</option><option value="short">Pages, fewest first</option><option value="long">Pages, most first</option></select></label>
 <label><input type="checkbox" id="lean"> Lean formalization reported</label>
+<label><input type="checkbox" id="related"> Has related submissions</label>
 </div>
 <p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
 <footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Topic labels are assigned automatically and may overlap. Lean and preprint links are shown where identified. See the linked PDF for the original.</footer></main>
-<script src="papers.js?v=11"></script>
+<script src="papers.js?v=12"></script>
 <script>
 const get=id=>document.getElementById(id);
-const [query,topic,sort,lean,count,results]=['query','topic','sort','lean','count','results'].map(get);
+const [query,topic,sort,lean,related,count,results]=['query','topic','sort','lean','related','count','results'].map(get);
 function node(tag,value,cls){
   const el=document.createElement(tag);
   if(value) el.textContent=value;
@@ -32,6 +33,8 @@ for(const name of [...new Set(papers.flatMap(p=>p.topics))].sort()){
   option.value=name;
   topic.append(option);
 }
+const selected=new URLSearchParams(window.location.search).get('paper');
+if(selected && /^\d+$/.test(selected)) query.value='#'+selected;
 let mathQueue=Promise.resolve();
 function typeset(elements, old=[]){
   const math=window.MathJax;
@@ -62,6 +65,13 @@ function paperCard(p){
   const institutions=[...new Set(p.institutions.flatMap(([,names])=>names))];
   if(institutions.length) summary.append(node('p',institutions.join(' · ')));
   if(p.lean) summary.append(node('span','Lean formalization reported'));
+  for(const [id,reason] of p.related||[]){
+    const link=node('a','Related #'+id,'pdf-link');
+    link.href='?paper='+id;
+    link.title=reason;
+    link.setAttribute('aria-label','Related submission '+id+'. '+reason);
+    summary.append(link);
+  }
   card.append(summary);
   card.addEventListener('toggle',()=>{
     if(!card.open||card.children.length>1) return;
@@ -96,7 +106,7 @@ function paperBody(p){
 }
 function render(){
   const terms=query.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  const found=papers.filter(p=>(!topic.value||p.topics.includes(topic.value))&&(!lean.checked||p.lean)&&terms.every(t=>t.startsWith('#')?String(p.id)===t.slice(1):p.search.includes(t)));
+  const found=papers.filter(p=>(!topic.value||p.topics.includes(topic.value))&&(!lean.checked||p.lean)&&(!related.checked||p.related?.length)&&terms.every(t=>t.startsWith('#')?String(p.id)===t.slice(1):p.search.includes(t)));
   found.sort((a,b)=>{
     if(sort.value==='short') return a.pages-b.pages||a.id-b.id;
     if(sort.value==='long') return b.pages-a.pages||a.id-b.id;
@@ -109,7 +119,7 @@ function render(){
   typeset([...results.querySelectorAll('summary')],old);
 }
 query.addEventListener('input',render);
-for(const control of [topic,sort,lean]) control.addEventListener('change',render);
+for(const control of [topic,sort,lean,related]) control.addEventListener('change',render);
 render();
 window.addEventListener('load',()=>typeset([...results.querySelectorAll('summary')]));
 </script>
