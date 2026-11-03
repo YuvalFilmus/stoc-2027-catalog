@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STOC 2027 Submission Catalog</title>
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']]},startup:{typeset:false}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f5ee;color:#172921;font:16px/1.55 system-ui,sans-serif}header{background:#173d31;color:white;padding:3rem max(5vw,calc((100vw - 980px)/2)) 2.5rem}header small{letter-spacing:.15em;color:#bce2c8}h1{font:clamp(2rem,6vw,4rem)/1.1 Georgia,serif;margin:.45rem 0}main{max-width:1020px;margin:auto;padding:1.5rem}input[type=search]{width:100%;padding:1rem;font:inherit;border:1px solid #7f9b8b;border-radius:.5rem;background:#fff}label{display:block;margin:.65rem 0}details{background:#fff;border:1px solid #d7dfd7;border-radius:.5rem;margin:.55rem 0;padding:1rem}summary{cursor:pointer;font-weight:650}summary span{color:#376451;font-size:.85em}summary p{font-weight:400;color:#40574d;margin:.35rem 0 0}h2{font-size:1rem;margin-bottom:.3rem}.excerpt{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#245e46}button{padding:.55rem .85rem;margin:.5rem .5rem .5rem 0;font:inherit;cursor:pointer}button:disabled{cursor:default}.body{max-width:78ch}footer{color:#40574d}
+</style>
+<header><small>THEORY OF COMPUTING · SUBMISSION INDEX</small><h1>STOC 2027</h1><div>Browse 1,665 submissions by title, author, or submission number.</div></header>
+<main><label for="query">Search submissions</label><input id="query" type="search" placeholder="Title, author, affiliation text, or #number">
+<label><input type="checkbox" id="technion"> Technion-affiliated submissions only</label>
+<p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
+<nav aria-label="Results pages"><button id="prev">Previous</button><button id="next">Next</button></nav>
+<footer>Titles and author lists come from the submission index. Affiliations and abstracts are extracted from PDFs and may contain formatting errors. Use the linked PDF to verify the original.</footer></main>
+<script src="papers.js"></script>
+<script>
+const get=id=>document.getElementById(id);
+const [query,technion,count,results,prev,next]=['query','technion','count','results','prev','next'].map(get);
+const size=25;
+let page=0;
+function node(tag,value,cls){
+  const el=document.createElement(tag);
+  if(value) el.textContent=value;
+  if(cls) el.className=cls;
+  return el;
+}
+function typeset(elements){
+  if(window.MathJax?.typesetPromise) MathJax.typesetPromise(elements).catch(console.error);
+}
+function paperCard(p){
+  const card=node('details');
+  const summary=node('summary');
+  summary.append(node('span','#'+p.id+' '),document.createTextNode(p.title),node('p',p.authors));
+  const body=node('div',null,'body');
+  const link=node('a','Open original PDF');
+  link.href='https://stoc2027.sigact-ec.workers.dev/submissions/'+p.id+'.pdf';
+  link.target='_blank'; link.rel='noopener';
+  body.append(node('h2',p.technion?'Technion-affiliated authors':'Affiliation information'));
+  if(p.technion) body.append(node('p',p.technion));
+  if(p.affiliations) body.append(node('p',p.affiliations,'excerpt'));
+  if(!p.affiliations && !p.technion) body.append(node('p','See the opening page text or original PDF for affiliation details.'));
+  body.append(node('h2','Abstract'),node('p',p.abstract||'No abstract was isolated automatically. See the opening page text or original PDF.','excerpt'));
+  const source=node('details');
+  source.append(node('summary','Opening page text'),node('div',p.source||'No text extracted.','excerpt'));
+  body.append(source,link);
+  card.append(summary,body);
+  card.addEventListener('toggle',()=>{if(card.open) typeset([body]);});
+  return card;
+}
+function render(){
+  const terms=query.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const found=papers.filter(p=>(!technion.checked||p.technion)&&terms.every(t=>t.startsWith('#')?String(p.id)===t.slice(1):p.search.includes(t)));
+  const pages=Math.max(1,Math.ceil(found.length/size));
+  count.textContent=found.length.toLocaleString()+' submissions · Page '+(page+1)+' of '+pages;
+  window.MathJax?.typesetClear?.([results]);
+  results.replaceChildren(...found.slice(page*size,(page+1)*size).map(paperCard));
+  prev.disabled=page===0; next.disabled=page>=pages-1;
+  typeset([...results.querySelectorAll('details > summary:first-child')]);
+}
+for(const control of [query,technion]) control.addEventListener('input',()=>{page=0;render();});
+prev.onclick=()=>{page--;render();count.scrollIntoView();};
+next.onclick=()=>{page++;render();count.scrollIntoView();};
+render();
+window.addEventListener('load',()=>typeset([...results.querySelectorAll('summary')]));
+</script>
+</html>
