@@ -23,7 +23,7 @@
 </div>
 <p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
 <footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Topic labels are assigned automatically and may overlap. Affiliations carried over from another submission are labeled. Industry filters classify listed affiliations, and categories may overlap. Formalization artifacts and preprint links are shown where identified. See the linked PDF for the original.</footer></main>
-<script src="papers.js?v=32"></script>
+<script src="papers.js?v=33"></script>
 <script>
 const get=id=>document.getElementById(id);
 const [query,topic,sort,formalization,related,ai,industry,authorCount,count,results]=['query','topic','sort','formalization','related','ai','industry','authorCount','count','results'].map(get);
@@ -74,12 +74,12 @@ function artifactHost(url){
   return 'Companion site';
 }
 function pdfURL(p){
-  return 'https://stoc2027.sigact-ec.workers.dev/submissions/'+p.id+'.pdf';
+  return p.pdf;
 }
 function paperCard(p){
   const card=node('details');
   const summary=node('summary');
-  const pdf=externalLink(pdfURL(p),'Open PDF');
+  const pdf=p.pdf?externalLink(pdfURL(p),'Open PDF'):node('span','PDF unavailable on new site');
   summary.append(node('span','#'+p.id+' '),document.createTextNode(p.title+' '),node('span','· '+p.pages+(p.pages===1?' page':' pages'),'pages'),pdf,node('p',p.authors));
   pdf.className='pdf-link';
   pdf.setAttribute('aria-label','Open PDF for submission '+p.id);
@@ -91,7 +91,7 @@ function paperCard(p){
     disclosure.append(document.createTextNode(pages.length===1?'AI statement · PDF page ':'AI statement · PDF pages '));
     for(const [index,page] of pages.entries()){
       if(index) disclosure.append(document.createTextNode(', '));
-      disclosure.append(externalLink(pdfURL(p)+'#page='+page,String(page)));
+      disclosure.append(p.pdf?externalLink(pdfURL(p)+'#page='+page,String(page)):document.createTextNode(String(page)));
     }
     summary.append(disclosure);
   }
@@ -141,7 +141,7 @@ function paperBody(p){
     item.append(externalLink(url,label));
     links.append(item);
   }
-  addLink(pdfURL(p),'Open original PDF');
+  if(p.pdf) addLink(pdfURL(p),'Open original PDF');
   for(const url of p.versions) addLink(url,p.versionLabels?.[url]||versionLabel(url));
   for(const url of p.artifacts||[]) addLink(url,artifactHost(url)+' record');
   body.append(links);
@@ -151,7 +151,7 @@ function paperBody(p){
     const list=node('ul');
     for(const entry of entries){
       const item=node('li',entry.tool+(entry.note?' — '+entry.note:''));
-      if(entry.page) item.append(document.createTextNode(' · '),externalLink(pdfURL(p)+'#page='+entry.page,'PDF page '+entry.page));
+      if(entry.page && p.pdf) item.append(document.createTextNode(' · '),externalLink(pdfURL(p)+'#page='+entry.page,'PDF page '+entry.page));
       for(const url of entry.links) item.append(document.createTextNode(' · '),externalLink(url,artifactHost(url)+' artifact'));
       list.append(item);
     }
@@ -161,7 +161,7 @@ function paperBody(p){
     body.append(node('h2','AI disclosure excerpts'));
     for(const [page,excerpt] of p.ai){
       const label=node('p');
-      label.append(externalLink(pdfURL(p)+'#page='+page,'PDF page '+page));
+      label.append(p.pdf?externalLink(pdfURL(p)+'#page='+page,'PDF page '+page):document.createTextNode('PDF page '+page));
       body.append(label,node('blockquote',excerpt));
     }
   }
