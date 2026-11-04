@@ -72,7 +72,7 @@ footer{color:#40574d}
 <div class="results-toolbar"><p id="count" role="status"></p><label for="sort">Sort by<select id="sort"><option value="id">Submission number</option><option value="short">Pages, fewest first</option><option value="long">Pages, most first</option></select></label></div>
 <section id="results" aria-label="Submissions"></section>
 <footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Missing affiliations are supplemented from verified author and institutional profiles. Topic labels are assigned automatically and may overlap. The P vs NP filter includes direct resolution claims, alternative computation models, and algebraic analogues; headline labels identify the category. Affiliations carried over from another submission are labeled. Industry filters classify listed affiliations, and categories may overlap. Formalization artifacts and preprint links are shown where identified. Student classifications require evidence for each author; missing evidence remains unresolved. “Without” filters mean no matching information has been identified in the catalog. PC membership is matched to the official STOC 2027 roster. See the linked PDF for the original.</footer></main>
-<script src="papers.js?v=50"></script>
+<script src="papers.js?v=51"></script>
 <script>
 const get=id=>document.getElementById(id);
 const [query,topic,sort,formalization,related,ai,pnp,industry,authorCount,studentAuthors,publicationHistory,pc,authorFilterHelp,count,results]=['query','topic','sort','formalization','related','ai','pnp','industry','authorCount','studentAuthors','publicationHistory','pc','authorFilterHelp','count','results'].map(get);
@@ -213,6 +213,11 @@ function paperCard(p){
   });
   return card;
 }
+function evidenceDate(value,fallback){
+  const match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(value||fallback);
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return match?Number(match[3])+' '+months[Number(match[2])-1]+' '+match[1]:'Date not recorded';
+}
 function paperBody(p){
   const body=node('div',null,'body');
   body.append(node('h2','Authors and institutions'));
@@ -238,7 +243,7 @@ function paperBody(p){
       if(student){
         const label=student.value==='yes'?'Student · source':student.value==='no'?'Non-student · source':'Student status unresolved';
         const entry=student.value==='unknown'?node('span',label,'unresolved'):externalLink(student.source,label);
-        entry.title=student.note+' Status at submission: 2 November 2026. Sources checked 4 November 2026.';
+        entry.title=student.note+' Status at submission: '+evidenceDate(student.asOf,'2026-11-02')+'. Sources checked '+evidenceDate(student.checked,'2026-11-04')+'.';
         status.append(entry);
       }
       const history=evidence?.history;
@@ -246,7 +251,7 @@ function paperBody(p){
         const label=history.value==='new'?'No earlier publications · source':history.value==='prior'?'Earlier publications · source':'Publication history unresolved';
         const entry=history.value==='unknown'?node('span',label,'unresolved'):externalLink(history.source,label);
         const earlier=history.priorWork;
-        entry.title=history.note+(earlier?' '+earlier.title+(earlier.year?' ('+earlier.year+')':'')+'.':'')+' History at submission: 2 November 2026. Sources checked 4 November 2026.';
+        entry.title=history.note+(earlier?' '+earlier.title+(earlier.year?' ('+earlier.year+')':'')+'.':'')+' History at submission: '+evidenceDate(history.asOf,'2026-11-02')+'. Sources checked '+evidenceDate(history.checked,'2026-11-04')+'.';
         status.append(entry);
       }
       item.append(status);
