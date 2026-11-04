@@ -33,6 +33,7 @@ summary .author-flags{color:#376451;font-size:.85em;font-weight:500}
 .pnp-filter:has(select[data-active=true]){background:none}
 @media(max-width:700px){.author-controls{grid-template-columns:1fr}.flags{grid-template-columns:repeat(2,minmax(0,1fr))}.flags .pnp-filter,.flags label:has(#ai){grid-column:auto}}
 @media(max-width:400px){.flags{grid-template-columns:1fr}}
+.author-status .unresolved{color:#68776e}
 </style>
 <header><small>THEORY OF COMPUTING · SUBMISSION INDEX</small><h1>STOC 2027</h1><div>Browse 1,665 submissions by title, author, or submission number.</div></header>
 <main><label for="query">Search submissions</label><input id="query" type="search" placeholder="Title, author, affiliation text, or #number">
@@ -55,7 +56,7 @@ summary .author-flags{color:#376451;font-size:.85em;font-weight:500}
 </div>
 <p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
 <footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Missing affiliations are supplemented from verified author and institutional profiles. Topic labels are assigned automatically and may overlap. The P vs NP filter includes direct resolution claims, alternative computation models, and algebraic analogues; headline labels identify the category. Affiliations carried over from another submission are labeled. Industry filters classify listed affiliations, and categories may overlap. Formalization artifacts and preprint links are shown where identified. Student classifications require evidence for each author; missing evidence remains unresolved. “Without” filters mean no matching information has been identified in the catalog. PC membership is matched to the official STOC 2027 roster. See the linked PDF for the original.</footer></main>
-<script src="papers.js?v=44"></script>
+<script src="papers.js?v=45"></script>
 <script>
 const get=id=>document.getElementById(id);
 const [query,topic,sort,formalization,related,ai,pnp,industry,authorCount,studentAuthors,pc,authorFilterHelp,count,results]=['query','topic','sort','formalization','related','ai','pnp','industry','authorCount','studentAuthors','pc','authorFilterHelp','count','results'].map(get);
@@ -206,7 +207,13 @@ function paperBody(p){
     if(evidence?.student||p.pcAuthors?.includes(name)){
       const status=node('div',null,'author-status');
       if(p.pcAuthors?.includes(name)) status.append(externalLink('https://stoc27.hotcrp.com/users/pc?sort=family_name','STOC 2027 PC member'));
-      if(evidence?.student) status.append(externalLink(evidence.student.source,evidence.student.value==='yes'?'Student profile':'Non-student profile'));
+      const student=evidence?.student;
+      if(student){
+        const label=student.value==='yes'?'Student · source':student.value==='no'?'Non-student · source':'Student status unresolved';
+        const entry=student.value==='unknown'?node('span',label,'unresolved'):externalLink(student.source,label);
+        entry.title=student.note+' Status at submission: 2 November 2026. Sources checked 4 November 2026.';
+        status.append(entry);
+      }
       item.append(status);
     }
     authors.append(item);
@@ -279,7 +286,7 @@ function matchesFeature(value,entries){
 function render(){
   pnp.setAttribute('data-active',String(!!pnp.value));
   const notes=[];
-  if(studentAuthors.value) notes.push('Student status is based on sourced public profiles; coverage is partial. Unknown cases are separate from confirmed student-only papers.');
+  if(studentAuthors.value) notes.push('Student status is assessed at submission (2 November 2026). Public sources resolve 1,782 of 3,029 author names; 1,247 remain unresolved. Students-only requires confirmation for every author; this is not an official student-award eligibility decision.');
   authorFilterHelp.textContent=notes.join(' ');authorFilterHelp.hidden=!notes.length;
   const matchesAuthorCount=authorCountPredicate(authorCount.value);
   authorCount.setAttribute('aria-invalid',String(!matchesAuthorCount));
