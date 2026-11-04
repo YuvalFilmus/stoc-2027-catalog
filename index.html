@@ -69,7 +69,7 @@ footer{color:#40574d}
 <div class="results-toolbar"><p id="count" role="status"></p><label for="sort">Sort by<select id="sort"><option value="id">Submission number</option><option value="short">Pages, fewest first</option><option value="long">Pages, most first</option></select></label></div>
 <section id="results" aria-label="Submissions"></section>
 <footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Missing affiliations are supplemented from verified author and institutional profiles. Topic labels are assigned automatically and may overlap. The P vs NP filter includes direct resolution claims, alternative computation models, and algebraic analogues; headline labels identify the category. Affiliations carried over from another submission are labeled. Industry filters classify listed affiliations, and categories may overlap. Formalization artifacts and preprint links are shown where identified. Student classifications require evidence for each author; missing evidence remains unresolved. “Without” filters mean no matching information has been identified in the catalog. PC membership is matched to the official STOC 2027 roster. See the linked PDF for the original.</footer></main>
-<script src="papers.js?v=46"></script>
+<script src="papers.js?v=47"></script>
 <script>
 const get=id=>document.getElementById(id);
 const [query,topic,sort,formalization,related,ai,pnp,industry,authorCount,studentAuthors,publicationHistory,pc,authorFilterHelp,count,results]=['query','topic','sort','formalization','related','ai','pnp','industry','authorCount','studentAuthors','publicationHistory','pc','authorFilterHelp','count','results'].map(get);
@@ -324,7 +324,7 @@ function render(){
   }
   if(publicationHistory.value){
     const c=authorCoverageCounts.history;
-    notes.push('Publication histories are attested for '+c.resolved.toLocaleString()+' of '+c.total.toLocaleString()+' author-name records. Earlier distinct research papers and preprints count; earlier versions of this submission do not. New-authors-only requires affirmative evidence for every author. An empty search or unresolved record does not count as new. History is assessed at submission (2 November 2026).');
+    notes.push('Publication histories are attested for '+c.resolved.toLocaleString()+' of '+c.total.toLocaleString()+' author-name records. Earlier distinct research papers and preprints outside this STOC submission batch count. Current submissions are treated as a debut batch and do not disqualify one another; versions of the same work do not count separately. New-authors-only requires affirmative evidence for every author. An empty search or unresolved record does not count as new. History is assessed at submission (2 November 2026).');
   }
   authorFilterHelp.textContent=notes.join(' ');authorFilterHelp.hidden=!notes.length;
   const matchesAuthorCount=authorCountPredicate(authorCount.value);
