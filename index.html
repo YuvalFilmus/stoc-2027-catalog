@@ -74,7 +74,7 @@ function artifactHost(url){
   return 'Companion site';
 }
 function pdfURL(p){
-  return p.pdf;
+  return p.pdf?'https://docs.google.com/gview?embedded=1&url='+encodeURIComponent(p.pdf):null;
 }
 function paperCard(p){
   const card=node('details');
@@ -141,7 +141,10 @@ function paperBody(p){
     item.append(externalLink(url,label));
     links.append(item);
   }
-  if(p.pdf) addLink(pdfURL(p),'Open original PDF');
+  if(p.pdf){
+    addLink(pdfURL(p),'Open PDF in browser');
+    addLink(p.pdf,'Download original PDF');
+  }
   for(const url of p.versions) addLink(url,p.versionLabels?.[url]||versionLabel(url));
   for(const url of p.artifacts||[]) addLink(url,artifactHost(url)+' record');
   body.append(links);
