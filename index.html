@@ -6,55 +6,68 @@
 <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']]},startup:{typeset:false}};</script>
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f5f5ee;color:#172921;font:16px/1.55 system-ui,sans-serif}header{background:#173d31;color:white;padding:3rem max(5vw,calc((100vw - 980px)/2)) 2.5rem}header small{letter-spacing:.15em;color:#bce2c8}h1{font:clamp(2rem,6vw,4rem)/1.1 Georgia,serif;margin:.45rem 0}main{max-width:1020px;margin:auto;padding:1.5rem}input[type=search]{width:100%;padding:1rem;font:inherit;border:1px solid #7f9b8b;border-radius:.5rem;background:#fff}label{display:block;margin:.65rem 0}section > details{content-visibility:auto;contain-intrinsic-size:auto 100px}details{background:#fff;border:1px solid #d7dfd7;border-radius:.5rem;margin:.55rem 0;padding:1rem}summary{cursor:pointer;font-weight:650}summary span{color:#376451;font-size:.85em}summary p{font-weight:400;color:#40574d;margin:.35rem 0 0}h2{font-size:1rem;margin-bottom:.3rem}.excerpt{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#245e46}button{padding:.55rem .85rem;margin:.5rem .5rem .5rem 0;font:inherit;cursor:pointer}button:disabled{cursor:default}.body{max-width:78ch}.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:.65rem;margin-top:.8rem}.controls label{margin:0;font-size:.85rem;font-weight:650}.controls select,.controls input{display:block;width:100%;margin-top:.25rem;background:white;border:1px solid #9eb1a4;border-radius:.35rem}.flags{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.8rem}.flags label{display:inline-flex;align-items:center;gap:.35rem;margin:0;padding:.35rem .6rem;border:1px solid #d7dfd7;border-radius:.4rem;background:white;font-size:.88rem}.author-orcid{font-size:.8em;margin-inline:.4rem}select,#authorCount{font:inherit;padding:.35rem}#authorCount::placeholder{color:#737973}summary .pdf-link{display:inline-block;margin-left:.65rem;font-size:.85em;font-weight:500}summary .pages{font-weight:400;white-space:nowrap}.ai-links{margin-inline-start:.65rem;color:#376451;font:inherit;font-weight:500}.ai-links a{font:inherit}footer{color:#40574d}
-
-.controls select,.controls input{min-height:44px}
-.flags{align-items:stretch;gap:.6rem}
-.flags label{min-height:44px;padding:.45rem .7rem;cursor:pointer;line-height:1.3}
-.flags input[type=checkbox]{width:16px;height:16px;margin:0;accent-color:#245e46;flex-shrink:0}
-.flags .pnp-filter{gap:.6rem;flex:1 1 240px;cursor:default}
-.pnp-filter select{flex:1;min-width:0;width:100%;margin:0;padding:.2rem;background:transparent;border:0;font:inherit;font-weight:500;color:#172921}
-input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid #376451;outline-offset:3px}
-.flags label:has(input:checked),.pnp-filter:has(select[data-active=true]){background:#eaf2ec;border-color:#7f9b8b}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f5ee;color:#172921;font:16px/1.55 system-ui,sans-serif}
+header{background:#173d31;color:white;padding:3rem max(5vw,calc((100vw - 980px)/2)) 2.5rem}
+header small{letter-spacing:.15em;color:#bce2c8}
+h1{font:clamp(2rem,6vw,4rem)/1.1 Georgia,serif;margin:.45rem 0}
+main{max-width:1020px;margin:auto;padding:1.5rem}
+label{display:block;margin:.65rem 0}
+input[type=search]{width:100%;padding:1rem;font:inherit;border:1px solid #7f9b8b;border-radius:.5rem;background:#fff}
+.filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.85rem .75rem;margin-top:1rem}
+.filters label,.results-toolbar label{margin:0;min-width:0;font-size:.85rem;font-weight:650}
+.filters label:nth-last-child(-n+2){grid-column:span 2}
+.filters select,.filters input,.results-toolbar select{display:block;width:100%;min-width:0;min-height:44px;margin-top:.25rem;padding:.45rem .55rem;background:#fff;color:#172921;border:1px solid #9eb1a4;border-radius:.35rem;font:inherit;font-weight:400}
+.filters label:has([data-active=true]) select,.filters label:has([data-active=true]) input{background:#eaf2ec;border-color:#5f836f}
+#authorCount::placeholder{color:#737973}
+.filter-hint,.filter-help{margin:.65rem 0 0;color:#40574d;font-size:.84rem;max-width:85ch}
+.results-toolbar{display:flex;justify-content:space-between;align-items:end;gap:1rem;margin:1.2rem 0 .8rem}
+.results-toolbar #count{margin:0;padding:.45rem 0}
+.results-toolbar label{width:13rem;flex-shrink:0}
+section>details{content-visibility:auto;contain-intrinsic-size:auto 100px}
+details{background:#fff;border:1px solid #d7dfd7;border-radius:.5rem;margin:.55rem 0;padding:1rem}
+summary{cursor:pointer;font-weight:650}
+summary span{color:#376451;font-size:.85em}
+summary p{font-weight:400;color:#40574d;margin:.35rem 0 0}
+summary .pdf-link{display:inline-block;margin-left:.65rem;font-size:.85em;font-weight:500}
+summary .pages{font-weight:400;white-space:nowrap}
 summary .pnp-badge{display:inline-block;margin:.25rem 0 .1rem .65rem;padding:.15rem .5rem;border-radius:.3rem;background:#eaf2ec;color:#24533f;font-size:.78em;font-weight:500}
-@media(max-width:600px){main{padding:1rem}.flags{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.flags .pnp-filter,.flags label:has(#ai){grid-column:1/-1}.flags label{font-size:.82rem}header{padding:2rem 1rem}.controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:360px){.controls{grid-template-columns:1fr}.flags{grid-template-columns:1fr}}
-.author-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem;margin-top:1rem;padding-top:1rem;border-top:1px solid #d7dfd7}
-.author-controls label{margin:0;font-size:.85rem;font-weight:650}
-.author-controls select{display:block;width:100%;min-width:0;min-height:44px;margin-top:.25rem;padding:.35rem;background:white;color:#172921;border:1px solid #9eb1a4;border-radius:.35rem;font:inherit;font-weight:400}
-.filter-help{margin:.65rem 0 0;color:#40574d;font-size:.84rem;max-width:85ch}
-.author-status{display:flex;flex-wrap:wrap;gap:.35rem .7rem;font-size:.8rem;margin:.2rem 0 .5rem}
 summary .author-flags{color:#376451;font-size:.85em;font-weight:500}
-@media(max-width:700px){.author-controls{grid-template-columns:1fr}}
-.flags{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.65rem;margin-top:1rem}
-.flags label,.flags .pnp-filter{display:block;padding:0;margin:0;border:0;background:none;font-size:.85rem;font-weight:650;line-height:1.55;cursor:default}
-.flags select,.pnp-filter select{display:block;width:100%;min-height:44px;margin-top:.25rem;padding:.35rem;background:#fff;color:#172921;border:1px solid #9eb1a4;border-radius:.35rem;font:inherit;font-weight:400}
-.pnp-filter:has(select[data-active=true]){background:none}
-@media(max-width:700px){.author-controls{grid-template-columns:1fr}.flags{grid-template-columns:repeat(2,minmax(0,1fr))}.flags .pnp-filter,.flags label:has(#ai){grid-column:auto}}
-@media(max-width:400px){.flags{grid-template-columns:1fr}}
+.ai-links{margin-inline-start:.65rem;color:#376451;font:inherit;font-weight:500}
+.ai-links a{font:inherit}
+h2{font-size:1rem;margin-bottom:.3rem}
+.excerpt{white-space:pre-wrap;overflow-wrap:anywhere}
+a{color:#245e46}
+button{padding:.55rem .85rem;margin:.5rem .5rem .5rem 0;font:inherit;cursor:pointer}
+button:disabled{cursor:default}
+.body{max-width:78ch}
+.author-orcid{font-size:.8em;margin-inline:.4rem}
+.author-status{display:flex;flex-wrap:wrap;gap:.35rem .7rem;font-size:.8rem;margin:.2rem 0 .5rem}
 .author-status .unresolved{color:#68776e}
+input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid #376451;outline-offset:3px}
+footer{color:#40574d}
+@media(max-width:750px){.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.filters label:nth-last-child(-n+2){grid-column:auto}}
+@media(max-width:500px){main{padding:1rem}header{padding:2rem 1rem}.results-toolbar{align-items:start;flex-direction:column}.results-toolbar label{width:100%}}
+@media(max-width:360px){.filters{grid-template-columns:1fr}}
 </style>
 <header><small>THEORY OF COMPUTING · SUBMISSION INDEX</small><h1>STOC 2027</h1><div>Browse 1,665 submissions by title, author, or submission number.</div></header>
 <main><label for="query">Search submissions</label><input id="query" type="search" placeholder="Title, author, affiliation text, or #number">
-<div class="controls">
-<label for="topic">Topic <select id="topic"><option value="">All topics</option></select></label>
-<label for="sort">Sort by <select id="sort"><option value="id">Submission number</option><option value="short">Pages, fewest first</option><option value="long">Pages, most first</option></select></label>
-<label for="industry">Industry <select id="industry"><option value="">All submissions</option><option value="any">Any industry affiliation</option><option value="lab">Industry research labs</option><option value="company">Other companies</option><option value="none">No industry affiliation identified</option></select></label>
-<label for="authorCount">Authors <input id="authorCount" type="text" placeholder="=1" size="5" aria-label="Author count comparison" title="Examples: =1, &gt;1, ≤2" autocomplete="off" spellcheck="false"></label>
-</div>
-<div class="author-controls" role="group" aria-label="Author filters">
+<div class="filters" role="group" aria-label="Submission filters">
+<label for="topic">Topic<select id="topic"><option value="">All topics</option></select></label>
+<label for="industry">Industry<select id="industry"><option value="">All submissions</option><option value="any">Any industry affiliation</option><option value="lab">Industry research labs</option><option value="company">Other companies</option><option value="none">No industry affiliation identified</option></select></label>
+<label for="authorCount">Authors<input id="authorCount" type="text" placeholder="=1" size="5" aria-label="Author count comparison" title="Examples: =1, &gt;1, ≤2" autocomplete="off" spellcheck="false"></label>
 <label for="studentAuthors">Student authors<select id="studentAuthors"><option value="">All submissions</option></select></label>
 <label for="publicationHistory">Publication history<select id="publicationHistory"><option value="">All submissions</option></select></label>
 <label for="pc">Program committee<select id="pc"><option value="">All submissions</option></select></label>
-</div>
-<p id="authorFilterHelp" class="filter-help" role="status" hidden></p>
-<div class="flags" role="group" aria-label="Submission features">
 <label for="formalization">Formalization<select id="formalization"><option value="">All submissions</option><option value="with">With formalization</option><option value="without">Without identified formalization</option></select></label>
 <label for="related">Related submissions<select id="related"><option value="">All submissions</option><option value="with">With related submissions</option><option value="without">Without related submissions</option></select></label>
 <label for="ai">AI statement<select id="ai"><option value="">All submissions</option><option value="with">With AI statement</option><option value="without">Without identified AI statement</option></select></label>
-<label for="pnp" class="pnp-filter"><span>P vs NP</span><select id="pnp" aria-label="P versus NP results" title="Direct resolution claims, alternative computation models, and algebraic analogues"><option value="">All submissions</option></select></label>
+<label for="pnp">P vs NP<select id="pnp" aria-label="P versus NP results" title="Direct resolution claims, alternative computation models, and algebraic analogues"><option value="">All submissions</option></select></label>
 </div>
-<p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
+<p class="filter-hint">All active filters apply together.</p>
+<p id="authorFilterHelp" class="filter-help" role="status" hidden></p>
+<div class="results-toolbar"><p id="count" role="status"></p><label for="sort">Sort by<select id="sort"><option value="id">Submission number</option><option value="short">Pages, fewest first</option><option value="long">Pages, most first</option></select></label></div>
+<section id="results" aria-label="Submissions"></section>
 <footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Missing affiliations are supplemented from verified author and institutional profiles. Topic labels are assigned automatically and may overlap. The P vs NP filter includes direct resolution claims, alternative computation models, and algebraic analogues; headline labels identify the category. Affiliations carried over from another submission are labeled. Industry filters classify listed affiliations, and categories may overlap. Formalization artifacts and preprint links are shown where identified. Student classifications require evidence for each author; missing evidence remains unresolved. “Without” filters mean no matching information has been identified in the catalog. PC membership is matched to the official STOC 2027 roster. See the linked PDF for the original.</footer></main>
 <script src="papers.js?v=46"></script>
 <script>
@@ -303,7 +316,7 @@ const authorCoverageCounts=Object.fromEntries(['student','history'].map(field=>{
   return [field,{total:names.size,resolved:[...names.values()].filter(Boolean).length}];
 }));
 function render(){
-  pnp.setAttribute('data-active',String(!!pnp.value));
+  for(const control of [topic,industry,authorCount,studentAuthors,publicationHistory,pc,formalization,related,ai,pnp]) control.setAttribute('data-active',String(!!control.value));
   const notes=[];
   if(studentAuthors.value){
     const c=authorCoverageCounts.student;
