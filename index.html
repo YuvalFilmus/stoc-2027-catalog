@@ -7,6 +7,18 @@
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f5f5ee;color:#172921;font:16px/1.55 system-ui,sans-serif}header{background:#173d31;color:white;padding:3rem max(5vw,calc((100vw - 980px)/2)) 2.5rem}header small{letter-spacing:.15em;color:#bce2c8}h1{font:clamp(2rem,6vw,4rem)/1.1 Georgia,serif;margin:.45rem 0}main{max-width:1020px;margin:auto;padding:1.5rem}input[type=search]{width:100%;padding:1rem;font:inherit;border:1px solid #7f9b8b;border-radius:.5rem;background:#fff}label{display:block;margin:.65rem 0}section > details{content-visibility:auto;contain-intrinsic-size:auto 100px}details{background:#fff;border:1px solid #d7dfd7;border-radius:.5rem;margin:.55rem 0;padding:1rem}summary{cursor:pointer;font-weight:650}summary span{color:#376451;font-size:.85em}summary p{font-weight:400;color:#40574d;margin:.35rem 0 0}h2{font-size:1rem;margin-bottom:.3rem}.excerpt{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#245e46}button{padding:.55rem .85rem;margin:.5rem .5rem .5rem 0;font:inherit;cursor:pointer}button:disabled{cursor:default}.body{max-width:78ch}.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:.65rem;margin-top:.8rem}.controls label{margin:0;font-size:.85rem;font-weight:650}.controls select,.controls input{display:block;width:100%;margin-top:.25rem;background:white;border:1px solid #9eb1a4;border-radius:.35rem}.flags{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.8rem}.flags label{display:inline-flex;align-items:center;gap:.35rem;margin:0;padding:.35rem .6rem;border:1px solid #d7dfd7;border-radius:.4rem;background:white;font-size:.88rem}.author-orcid{font-size:.8em;margin-inline:.4rem}select,#authorCount{font:inherit;padding:.35rem}#authorCount::placeholder{color:#737973}summary .pdf-link{display:inline-block;margin-left:.65rem;font-size:.85em;font-weight:500}summary .pages{font-weight:400;white-space:nowrap}.ai-links{margin-inline-start:.65rem;color:#376451;font:inherit;font-weight:500}.ai-links a{font:inherit}footer{color:#40574d}
+
+.controls select,.controls input{min-height:44px}
+.flags{align-items:stretch;gap:.6rem}
+.flags label{min-height:44px;padding:.45rem .7rem;cursor:pointer;line-height:1.3}
+.flags input[type=checkbox]{width:16px;height:16px;margin:0;accent-color:#245e46;flex-shrink:0}
+.flags .pnp-filter{gap:.6rem;flex:1 1 240px;cursor:default}
+.pnp-filter select{flex:1;min-width:0;width:100%;margin:0;padding:.2rem;background:transparent;border:0;font:inherit;font-weight:500;color:#172921}
+input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid #376451;outline-offset:3px}
+.flags label:has(input:checked),.pnp-filter:has(select[data-active=true]){background:#eaf2ec;border-color:#7f9b8b}
+summary .pnp-badge{display:inline-block;margin:.25rem 0 .1rem .65rem;padding:.15rem .5rem;border-radius:.3rem;background:#eaf2ec;color:#24533f;font-size:.78em;font-weight:500}
+@media(max-width:600px){main{padding:1rem}.flags{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.flags .pnp-filter,.flags label:has(#ai){grid-column:1/-1}.flags label{font-size:.82rem}header{padding:2rem 1rem}.controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:360px){.controls{grid-template-columns:1fr}.flags{grid-template-columns:1fr}}
 </style>
 <header><small>THEORY OF COMPUTING · SUBMISSION INDEX</small><h1>STOC 2027</h1><div>Browse 1,665 submissions by title, author, or submission number.</div></header>
 <main><label for="query">Search submissions</label><input id="query" type="search" placeholder="Title, author, affiliation text, or #number">
@@ -20,13 +32,14 @@
 <label><input type="checkbox" id="formalization"> Has formalization</label>
 <label><input type="checkbox" id="related"> Has related submissions</label>
 <label><input type="checkbox" id="ai"> Has AI statement</label>
+<label for="pnp" class="pnp-filter"><span>P vs NP</span><select id="pnp" aria-label="P versus NP results" title="Direct resolution claims, alternative computation models, and algebraic analogues"><option value="">All submissions</option></select></label>
 </div>
 <p id="count" role="status"></p><section id="results" aria-label="Submissions"></section>
-<footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Missing affiliations are supplemented from verified author and institutional profiles. Topic labels are assigned automatically and may overlap. Affiliations carried over from another submission are labeled. Industry filters classify listed affiliations, and categories may overlap. Formalization artifacts and preprint links are shown where identified. See the linked PDF for the original.</footer></main>
-<script src="papers.js?v=41"></script>
+<footer>Titles and author lists come from the submission index. Author–institution matches and abstracts are extracted automatically from PDFs and may be incomplete. Missing affiliations are supplemented from verified author and institutional profiles. Topic labels are assigned automatically and may overlap. The P vs NP filter includes direct resolution claims, alternative computation models, and algebraic analogues; headline labels identify the category. Affiliations carried over from another submission are labeled. Industry filters classify listed affiliations, and categories may overlap. Formalization artifacts and preprint links are shown where identified. See the linked PDF for the original.</footer></main>
+<script src="papers.js?v=42"></script>
 <script>
 const get=id=>document.getElementById(id);
-const [query,topic,sort,formalization,related,ai,industry,authorCount,count,results]=['query','topic','sort','formalization','related','ai','industry','authorCount','count','results'].map(get);
+const [query,topic,sort,formalization,related,ai,pnp,industry,authorCount,count,results]=['query','topic','sort','formalization','related','ai','pnp','industry','authorCount','count','results'].map(get);
 function node(tag,value,cls){
   const el=document.createElement(tag);
   if(value) el.textContent=value;
@@ -38,8 +51,16 @@ for(const name of [...new Set(papers.flatMap(p=>p.topics))].sort()){
   option.value=name;
   topic.append(option);
 }
+for(const [value,label] of [['any','All P vs NP papers'],['standard','Standard-model claims'],['alternative','Alternative models'],['algebraic','Algebraic analogues']]){
+  const n=papers.filter(p=>p.pnp&&(value==='any'||p.pnp.kind===value)).length;
+  const option=node('option',label+' ('+n+')');
+  option.value=value;
+  pnp.append(option);
+}
 const selected=new URLSearchParams(window.location.search).get('paper');
 if(selected && /^\d+$/.test(selected)) query.value='#'+selected;
+const pnpSelection=new URLSearchParams(window.location.search).get('pnp');
+if(['any','standard','alternative','algebraic'].includes(pnpSelection)) pnp.value=pnpSelection;
 let mathQueue=Promise.resolve();
 function typeset(elements, old=[]){
   const math=window.MathJax;
@@ -81,6 +102,7 @@ function paperCard(p){
   const summary=node('summary');
   const pdf=p.pdf?externalLink(pdfURL(p),'Open PDF'):node('span','PDF unavailable on new site');
   summary.append(node('span','#'+p.id+' '),document.createTextNode(p.title+' '),node('span','· '+p.pages+(p.pages===1?' page':' pages'),'pages'),pdf,node('p',p.authors));
+  if(p.pnp) summary.append(node('span','P vs NP · '+p.pnp.label,'pnp-badge'));
   pdf.className='pdf-link';
   pdf.setAttribute('aria-label','Open PDF for submission '+p.id);
   const institutions=[...new Set(p.institutions.flatMap(([,names])=>names))];
@@ -192,10 +214,11 @@ function authorCountPredicate(value){
   }
 }
 function render(){
+  pnp.setAttribute('data-active',String(!!pnp.value));
   const matchesAuthorCount=authorCountPredicate(authorCount.value);
   authorCount.setAttribute('aria-invalid',String(!matchesAuthorCount));
   const terms=query.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  const found=papers.filter(p=>(!topic.value||p.topics.includes(topic.value))&&(!formalization.checked||p.formalizations?.length)&&(!related.checked||p.related?.length)&&(!ai.checked||p.ai?.length)&&matchesIndustry(p)&&matchesAuthorCount?.(p.institutions.length)&&terms.every(t=>t.startsWith('#')?String(p.id)===t.slice(1):p.search.includes(t)));
+  const found=papers.filter(p=>(!topic.value||p.topics.includes(topic.value))&&(!formalization.checked||p.formalizations?.length)&&(!related.checked||p.related?.length)&&(!ai.checked||p.ai?.length)&&(!pnp.value||(pnp.value==='any'?!!p.pnp:p.pnp?.kind===pnp.value))&&matchesIndustry(p)&&matchesAuthorCount?.(p.institutions.length)&&terms.every(t=>t.startsWith('#')?String(p.id)===t.slice(1):p.search.includes(t)));
   found.sort((a,b)=>{
     if(sort.value==='short') return a.pages-b.pages||a.id-b.id;
     if(sort.value==='long') return b.pages-a.pages||a.id-b.id;
@@ -209,7 +232,7 @@ function render(){
 }
 query.addEventListener('input',render);
 authorCount.addEventListener('input',render);
-for(const control of [topic,sort,formalization,related,ai,industry]) control.addEventListener('change',render);
+for(const control of [topic,sort,formalization,related,ai,pnp,industry]) control.addEventListener('change',render);
 render();
 window.addEventListener('load',()=>typeset([...results.querySelectorAll('summary')]));
 </script>
